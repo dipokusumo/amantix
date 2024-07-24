@@ -6,6 +6,8 @@ interface IUser extends Document {
     email: string;
     username: string;
     password: string;
+    isVerified: boolean;
+    verificationToken: string | null;
     comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
@@ -41,6 +43,14 @@ const userSchema: Schema = new Schema({
         type: String,
         required: [true, 'Password is required'],
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    verificationToken: {
+        type: String,
+        default: null,
+    }
 }, { collection: 'datauser' });
 
 // Menambahkan metode untuk membandingkan password
