@@ -16,8 +16,13 @@ export default function LoginPage() {
       <div className="w-1/2 bg-[#F8F7F3] flex flex-col items-center justify-center relative">
         <h2 className="absolute top-4 left-4 text-3xl font-bold text-blue-600">Login</h2>
         <div className="max-w-md w-full p-8">
+
           <div className="absolute top-0 right-0">
-            <img src="/svgs/tixlog.svg" alt="Logo" className="w-32 h-32" />
+            <img src="/svgs/tixlog.svg" alt="Logo" className="w-full h-full" />
+          </div>
+          <div className='pb-4 text-center justify-center'>
+            <h1 className='text-3xl text-blue-500 font-bold'>Welcome Back !</h1>
+            <p className='text-lg'>Enter your email and password to acces your account</p>
           </div>
           <form>
           <div className="relative mb-6">

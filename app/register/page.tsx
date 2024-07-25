@@ -18,11 +18,15 @@ export default function RegisterPage() {
           <img src="/svgs/Logo.svg" alt="Logo" className="w-full h-full mx-auto mb-4" />
         </div>
       </div>
-      <div className="w-1/2 bg-[#F8F7F3] flex flex-col items-center justify-center relative">
-        <h2 className="absolute top-4 left-4 text-3xl font-bold text-blue-600">Register</h2>
+      <div className="w-1/2 bg-[#F8F7F3] flex flex-col items-center justify-center relative ">
+        <h2 className="absolute top-4 left-4 text-[40px] font-bold text-blue-600">Register</h2>
+        <div className=' text-center justify-center'>
+            <h1 className='text-3xl text-blue-500 font-bold'>Let's Create Your Account!</h1>
+            <p className='pt-4'>Please enter your details to get started with AMANTIX</p>
+          </div>
         <div className="max-w-md w-full p-8">
           <div className="absolute top-0 right-0">
-            <img src="/svgs/tixlog.svg" alt="Logo" className="w-32 h-32" />
+            <img src="/svgs/tixlog.svg" alt="Logo" className="w-full h-full" />
           </div>
           <form>
             <div className="relative mb-6">
@@ -88,10 +92,15 @@ export default function RegisterPage() {
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-3 rounded focus:outline-none focus:shadow-outline w-full"
                 type="button"
               >
-                Register
+                Create Account
               </button>
             </div>
           </form>
+        </div>
+        <div className='flex justify-center'>
+          <img src="/svgs/lock.svg" alt="Logo" className="w-[24px] h-[24px] mx-auto mb-4" />
+          <p className=' ml-4'>Your data will be protected and will not be used without your consent. <br />
+          By creating an account, you agree to our <span className='text-blue-500'> Terms & Conditions </span> and <span className='text-blue-500'> Privacy Policy.</span></p>
         </div>
       </div>
     </div>
