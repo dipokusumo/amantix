@@ -12,19 +12,12 @@ interface SlideData {
 }
 
 const slides: SlideData[] = [
-  { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
-  { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
-  { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
-  { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
-  { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
-  { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
-  { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
+  { imageSrc: '/svgs/img1.svg', description: 'Need Confirmation' },
+  { imageSrc: '/svgs/img2.svg', description: 'Need Confirmation' },
+  { imageSrc: '/svgs/img3.svg', description: 'Need Confirmation' },
 ];
 
-const ImageSlider: React.FC = () => {
+const AdminSlider: React.FC = () => {
   return (
     <div className="relative w-full bg-[#F8F7F3]">
       <Swiper
@@ -58,7 +51,7 @@ const ImageSlider: React.FC = () => {
                 alt={`Image ${index + 1}`}
                 className="object-cover w-full h-[293px]"
               />
-              <p className="text-lg font-semibold pt-4">{slide.description}</p>
+              <p className="flex text-lg font-semibold pt-4"><img src="svgs/bullet.svg" alt="bullet" className=' mr-2' />{slide.description}</p>
             </div>
           </SwiperSlide>
         ))}
@@ -75,4 +68,4 @@ const ImageSlider: React.FC = () => {
   );
 };
 
-export default ImageSlider;
+export default AdminSlider;

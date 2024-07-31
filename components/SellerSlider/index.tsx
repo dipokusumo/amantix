@@ -12,19 +12,12 @@ interface SlideData {
 }
 
 const slides: SlideData[] = [
-  { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
-  { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
-  { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
-  { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
-  { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
-  { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
-  { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
+  { imageSrc: '/svgs/img1.svg', description: 'Need Confirmation' },
+  { imageSrc: '/svgs/img2.svg', description: 'Accepted' },
+  { imageSrc: '/svgs/img3.svg', description: 'Rejected' },
 ];
 
-const ImageSlider: React.FC = () => {
+const SellerSlider: React.FC = () => {
   return (
     <div className="relative w-full bg-[#F8F7F3]">
       <Swiper
@@ -34,7 +27,7 @@ const ImageSlider: React.FC = () => {
         pagination={{ clickable: true }}
         loop={true}
         autoplay={{ 
-          delay: 2000, // Auto-slide setiap 3 detik
+          delay: 2000, // Auto-slide setiap 2 detik
           disableOnInteraction: false // Slide tetap berjalan meskipun pengguna berinteraksi
         }}
         breakpoints={{
@@ -58,7 +51,14 @@ const ImageSlider: React.FC = () => {
                 alt={`Image ${index + 1}`}
                 className="object-cover w-full h-[293px]"
               />
-              <p className="text-lg font-semibold pt-4">{slide.description}</p>
+              <p className={`flex text-lg font-semibold pt-4 ${slide.description === 'Accepted' ? 'text-green-500' : slide.description === 'Rejected' ? 'text-red-500' : 'text-gray-500'}`}>
+                <img 
+                  src={slide.description === 'Accepted' ? 'svgs/bullet1.svg' : slide.description === 'Rejected' ? 'svgs/bullet2.svg' : 'svgs/bullet.svg'} 
+                  alt="bullet" 
+                  className='mr-2' 
+                />
+                {slide.description}
+              </p>
             </div>
           </SwiperSlide>
         ))}
@@ -75,4 +75,4 @@ const ImageSlider: React.FC = () => {
   );
 };
 
-export default ImageSlider;
+export default SellerSlider;

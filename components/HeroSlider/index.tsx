@@ -1,21 +1,23 @@
-// components/HeroSlider.tsx
-
 "use client";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination'; // Import CSS for Pagination
-import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css/autoplay'; // Import CSS for Autoplay
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 const HeroSlider: React.FC = () => {
   return (
     <div className="relative w-full h-full overflow-hidden">
       <Swiper
-        modules={[Navigation, Pagination]}
-        spaceBetween={50}
+        modules={[Navigation, Pagination, Autoplay]}
+        spaceBetween={30} // Jarak antar gambar dalam piksel
         slidesPerView={1}
         pagination={{ clickable: true }}
-        navigation
         loop={true} // Enable looping
+        autoplay={{ 
+          delay: 3000, // Auto-slide setiap 3 detik
+          disableOnInteraction: false // Slide tetap berjalan meskipun pengguna berinteraksi
+        }}
         className="w-full h-full"
       >
         <SwiperSlide>
