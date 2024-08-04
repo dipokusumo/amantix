@@ -133,9 +133,41 @@ const loginUser = async (req: Request, res: Response) => {
 
         await newToken.save();
 
-        res.json({ token });
+        res.json({ message: 'Log in successfully', token });
     } catch (err) {
         res.status(500).json({ message: 'Internal server error', error: err });
+    }
+};
+
+const getUserProfile = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.user?.userId).select('_id phone email username');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+const updateUserProfile = async (req: Request, res: Response) => {
+    try {
+        const { phone, email, username } = req.body;
+
+        const user = await User.findById(req.user?.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.phone = phone || user.phone;
+        user.email = email || user.email;
+        user.username = username || user.username;
+
+        await user.save();
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
     }
 };
 
@@ -153,4 +185,4 @@ const logoutUser = async (req: Request, res: Response) => {
     }
 };
 
-export { registerUser, verifyEmail, loginUser, logoutUser };
+export { registerUser, verifyEmail, loginUser, getUserProfile, updateUserProfile, logoutUser };
