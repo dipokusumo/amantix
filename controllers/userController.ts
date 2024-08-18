@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User';
+import Seller from '../models/Seller';
+import Admin from '../models/Admin';
 import Token from '../models/Token';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken'
 import transporter from '../config/mailer';
+import { generateToken } from '../utils/tokenUtils';
 
 const registerUser = async (req: Request, res: Response): Promise<void> => {
     const { phone, email, username, password } = req.body;
@@ -20,6 +23,20 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
         user = await User.findOne({ email });
         if (user) {
             res.status(400).json({ message: 'Email is already in use' });
+            return;
+        }
+
+        // Check if email already exists in Seller collection
+        const seller = await Seller.findOne({ email });
+        if (seller) {
+            res.status(400).json({ message: 'Email is already registered as a seller' });
+            return;
+        }
+
+        // Check if email already exists in Admin collection
+        const admin = await Admin.findOne({ email });
+        if (admin) {
+            res.status(400).json({ message: 'Email is already registered as an admin' });
             return;
         }
 
@@ -112,22 +129,19 @@ const loginUser = async (req: Request, res: Response) => {
         }
 
         // Check if the password is correct
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password || '');
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         // Generate JWT token
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET || 'default_secret',
-            { expiresIn: '1h' }
-        );
+        const token = generateToken({ Id: user.id.toString(), role: 'user' });
 
         // Save the token in the database
         const newToken = new Token({
             token,
-            userId: user._id,
+            Id: user._id,
+            role: "user",
             expiresAt: new Date(Date.now() + 3600000) // Token expires in 1 hour
         });
 
@@ -139,18 +153,50 @@ const loginUser = async (req: Request, res: Response) => {
     }
 };
 
+const getUserProfile = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.user?.Id).select('_id phone email username');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+const updateUserProfile = async (req: Request, res: Response) => {
+    try {
+        const { phone, email, username } = req.body;
+
+        const user = await User.findById(req.user?.Id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.phone = phone || user.phone;
+        user.email = email || user.email;
+        user.username = username || user.username;
+
+        await user.save();
+        res.json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
 const changePassword = async (req: Request, res: Response): Promise<void> => {
     const { currentPassword, newPassword } = req.body;
 
     try {
-        const user: IUser | null = await User.findById(req.user?.userId);
+        const user: IUser | null = await User.findById(req.user?.Id);
         if (!user) {
             res.status(404).json({ message: 'User not found' });
             return;
         }
 
         // Check if the current password is correct
-        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password || '');
         if (!isPasswordValid) {
             res.status(401).json({ message: 'Current password is incorrect' });
             return;
@@ -183,4 +229,4 @@ const logoutUser = async (req: Request, res: Response) => {
     }
 };
 
-export { registerUser, verifyEmail, loginUser, changePassword, logoutUser };
+export { registerUser, verifyEmail, loginUser, getUserProfile, updateUserProfile, changePassword, logoutUser };

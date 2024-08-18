@@ -1,16 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import Token from '../models/Token';
-
-declare global {
-    namespace Express {
-        interface Request {
-            user?: {
-                userId: string;
-            };
-        }
-    }
-}
+import User from '../models/User';
+import Seller from '../models/Seller';
+import Admin from '../models/Admin';
 
 const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
@@ -26,11 +19,31 @@ const authenticateToken = async (req: Request, res: Response, next: NextFunction
             return res.status(403).json({ message: 'Invalid or expired token' });
         }
 
-        req.user = { userId: (decoded as any).userId };
+        let user;
+        if (storedToken.role === 'user') {
+            user = await User.findById(storedToken.Id).exec();
+        } else if (storedToken.role === 'seller') {
+            user = await Seller.findById(storedToken.Id).exec();
+        } else if (storedToken.role === 'admin') {
+            user = await Admin.findById(storedToken.Id).exec();
+        }
+
+        if (!user) {
+            return res.status(403).json({ message: 'User not found' });
+        }
+
+        req.user = { Id: (decoded as any).Id, role: storedToken.role };
         next();
     } catch (err) {
         return res.status(403).json({ message: 'Invalid token' });
     }
 };
 
-export default authenticateToken;
+const authorizeRole = (requiredRole: string) => (req: Request, res: Response, next: NextFunction) => {
+    if (req.user?.role !== requiredRole) {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+    next();
+};
+
+export { authenticateToken, authorizeRole };

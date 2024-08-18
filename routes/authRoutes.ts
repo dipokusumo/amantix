@@ -1,23 +1,45 @@
-// import express from 'express';
-// import passport from 'passport';
+import express, { Request, Response } from 'express';
+import passport from '../config/passport';
 
-// const router = express.Router();
+const router = express.Router();
 
-// router.get('/auth/google',
-//     passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/user.phonenumbers.read'] })
-// );
+router.get('/auth/google', (req, res, next) => {
+    console.log('Initiating Google authentication');
+    next();
+}, passport.authenticate('google', {
+    scope: ['profile', 'email'], prompt: 'consent'
+}));
 
-// router.get('/auth/google/callback',
-//     passport.authenticate('google', { failureRedirect: '/login' }),
-//     (req, res) => {
-//         if (req.user && !req.user.phone) {
-//             // Redirect ke halaman update nomor telepon jika tidak tersedia
-//             res.redirect('/update-phone');
-//         } else {
-//             // Jika login berhasil dan sudah ada nomor telepon atau tidak wajib
-//             res.redirect('/');
-//         }
-//     }
-// );
+router.get('/auth/google/callback', (req, res, next) => {
+    console.log('Handling Google callback');
+    console.log('Query parameters:', req.query);
+    next();
+}, passport.authenticate('google', { session: true }), (req: Request, res: Response) => {
+    console.log('Google callback successful');
+    if (req.user) {
+        console.log('Authenticated user:', req.user);
+        const { role, token } = req.user as any;
+        
+        // Option 1: Redirect with token as query parameter
+        res.redirect(`/${role}/dashboard?token=${token}`);
 
-// export default router;
+        // Option 2: Send token in response body (for API usage)
+        // res.json({ role, token });
+    } else {
+        console.log('User authentication failed');
+        res.redirect('/login');
+    }
+});
+
+router.get('/logout', (req: Request, res: Response) => {
+    console.log('Logging out user');
+    req.logout((err) => {
+        if (err) {
+            console.error('Logout error:', err);
+            return res.status(500).json({ message: 'Logout failed', error: err });
+        }
+        res.redirect('/');
+    });
+});
+
+export default router;

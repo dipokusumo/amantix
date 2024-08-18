@@ -2,17 +2,23 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 interface IToken extends Document {
     token: string;
-    userId: mongoose.Schema.Types.ObjectId;
+    Id: mongoose.Schema.Types.ObjectId;
+    role: 'user' | 'seller' | 'admin'; // Add role field
     createdAt: Date;
     expiresAt: Date;
 }
 
 const TokenSchema: Schema = new Schema({
     token: { type: String, required: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    Id: { type: Schema.Types.ObjectId, required: true },
+    role: { 
+        type: String,
+        enum: ['user', 'seller', 'admin'],
+        required: true
+    },
     createdAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date, required: true }
-}, { collection: 'userjwt' });
+    expiresAt: { type: Date, required: true },
+}, { collection: 'jwt' });
 
 const Token = mongoose.model<IToken>('Token', TokenSchema);
 
