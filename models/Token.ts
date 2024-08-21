@@ -1,5 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                Id: string;
+                role: 'user' | 'seller' | 'admin';
+                // Add other properties if needed
+            };
+        }
+    }
+}
+
 interface IToken extends Document {
     token: string;
     Id: mongoose.Schema.Types.ObjectId;
