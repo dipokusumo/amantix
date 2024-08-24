@@ -12,9 +12,10 @@ passport.use(new GoogleStrategy(
         clientID: process.env.GOOGLE_CLIENT_ID!,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         callbackURL: 'http://localhost:5000/api/auth/google/callback',
-        scope: ['profile', 'email']
+        scope: ['profile', 'email'],
+        passReqToCallback: true
     },
-    async (accessToken: string, refreshToken: string, profile: any, done: (err: any, user?: any) => void) => {
+    async (req, accessToken: string, refreshToken: string, profile: any, done: (err: any, user?: any) => void) => {
         try {
             console.log('Access Token:', accessToken);
             console.log('Refresh Token:', refreshToken);
@@ -97,48 +98,11 @@ passport.use(new GoogleStrategy(
                 await newToken.save();
                 return done(null, { ...user.toObject(), role: 'user', token });
             }
-
-            console.log('Email not registered');
-            return done(false, { message: 'Email not registered' });
         } catch (err) {
             console.error('Error in Google Strategy:', err);
             return done(err);
         }
     }
 ));
-
-passport.serializeUser((user: any, done) => {
-    console.log('Serializing user:', user);
-    done(null, user._id);
-});
-
-passport.deserializeUser(async (id: string, done) => {
-    try {
-        console.log('Deserializing user with id:', id);
-        let user = await User.findById(id);
-        if (user) {
-            console.log('User deserialized:', user);
-            return done(null, user);
-        }
-
-        let seller = await Seller.findById(id);
-        if (seller) {
-            console.log('Seller deserialized:', seller);
-            return done(null, seller);
-        }
-
-        let admin = await Admin.findById(id);
-        if (admin) {
-            console.log('Admin deserialized:', admin);
-            return done(null, admin);
-        }
-
-        console.log('User not found during deserialization');
-        done(new Error('User not found'), null);
-    } catch (err) {
-        console.error('Error during deserialization:', err);
-        done(err, null);
-    }
-});
 
 export default passport;

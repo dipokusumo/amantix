@@ -22,7 +22,7 @@ interface IToken extends Document {
 
 const TokenSchema: Schema = new Schema({
     token: { type: String, required: true },
-    Id: { type: Schema.Types.ObjectId, required: true },
+    Id: { type: mongoose.Schema.Types.ObjectId, required: true },
     role: { 
         type: String,
         enum: ['user', 'seller', 'admin'],
@@ -35,3 +35,4 @@ const TokenSchema: Schema = new Schema({
 const Token = mongoose.model<IToken>('Token', TokenSchema);
 
 export default Token;
+export {IToken};

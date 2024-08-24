@@ -9,11 +9,11 @@ interface IAdmin extends Document {
 const adminSchema: Schema = new Schema({
     email: {
         type: String,
-        required: [true],
+        required: true,
     },
     name: {
         type: String,
-        required: [true],
+        required: true,
     },
 }, { collection: 'dataadmin' });
 

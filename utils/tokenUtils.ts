@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 
-// Define a type for the payload
 interface TokenPayload {
     Id: string;
     role: 'user' | 'seller' | 'admin';

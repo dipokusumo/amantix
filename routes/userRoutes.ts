@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { registerUser, verifyEmail, loginUser, getUserProfile, updateUserProfile, changePassword, logoutUser } from '../controllers/userController';
+import { addSeller, registerUser, verifyEmail, loginUser, getUserProfile, updateUserPhone, changePassword, logoutUser } from '../controllers/userController';
 import { authenticateToken, authorizeRole } from '../middleware/authMiddleware';
 
 const router: Router = Router();
+
+router.post('/admin/addseller', authenticateToken, authorizeRole('admin'), addSeller)
 
 // Register route
 router.post('/register', registerUser);
@@ -17,7 +19,7 @@ router.post('/login', loginUser);
 router.get('/getuserprofile', authenticateToken, authorizeRole('user'), getUserProfile);
 
 // Update user profile
-router.put('/updateuserprofile', authenticateToken, authorizeRole('user'), updateUserProfile);
+router.put('/updateuserphone', authenticateToken, authorizeRole('user'), updateUserPhone);
 
 // User change password
 router.put('/change-password', authenticateToken, authorizeRole('user'), changePassword);

@@ -12,21 +12,26 @@ const sellerSchema: Schema = new Schema({
     role: {
         type: String,
         default: 'seller',
-        enum: ['seller'],
+        enum: 'seller',
     },
     email: {
         type: String,
-        required: [true],
+        required: true,
+        unique: true
     },
     name: {
         type: String,
-        required: [true],
+        required: true,
+        unique: true
     },
     phone: {
         type: String,
+        required: true,
+        unique: true
     },
     universitas: {
         type: String,
+        required: true,
     },
 }, { collection: 'dataseller' });
 

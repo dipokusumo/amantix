@@ -6,7 +6,7 @@ interface IUser extends Document {
     phone: string | null;
     email: string;
     username: string;
-    image: Buffer | null;
+    image: String | Buffer | null;
     password: string | null;
     isVerified: boolean;
     verificationToken: string | null;
@@ -46,7 +46,7 @@ const userSchema: Schema = new Schema({
         unique: true,
     },
     image: {
-        type: Buffer,
+        type: String, Buffer,
         default: null,
     },
     password: {
@@ -55,9 +55,9 @@ const userSchema: Schema = new Schema({
             validator: function (v: string) {
                 // If password is provided, it must meet certain criteria (e.g., length).
                 // Otherwise, it's optional (e.g., for Google OAuth users).
-                return v ? v.length >= 6 : true;
+                return v ? v.length >= 8 : true;
             },
-            message: 'Password must be at least 6 characters long',
+            message: 'Password must be at least 8 characters long',
         },
         default: null,
     },

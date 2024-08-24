@@ -14,32 +14,21 @@ router.get('/auth/google/callback', (req, res, next) => {
     console.log('Handling Google callback');
     console.log('Query parameters:', req.query);
     next();
-}, passport.authenticate('google', { session: true }), (req: Request, res: Response) => {
+}, passport.authenticate('google', { session: false }), (req: Request, res: Response) => {
     console.log('Google callback successful');
     if (req.user) {
         console.log('Authenticated user:', req.user);
-        const { role, token } = req.user as any;
+        const { _id, name, username, image, role, token } = req.user as any;
         
         // Option 1: Redirect with token as query parameter
-        res.redirect(`/${role}/dashboard?token=${token}`);
+        // res.redirect(`${_id}/${role}/dashboard?token=${token}`);
 
         // Option 2: Send token in response body (for API usage)
-        // res.json({ role, token });
+        res.json({ _id, name, username, image, role, token });
     } else {
         console.log('User authentication failed');
         res.redirect('/login');
     }
-});
-
-router.get('/logout', (req: Request, res: Response) => {
-    console.log('Logging out user');
-    req.logout((err) => {
-        if (err) {
-            console.error('Logout error:', err);
-            return res.status(500).json({ message: 'Logout failed', error: err });
-        }
-        res.redirect('/');
-    });
 });
 
 export default router;

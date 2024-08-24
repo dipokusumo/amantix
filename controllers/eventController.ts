@@ -5,9 +5,9 @@ import Seller from '../models/Seller';
 const addEvent = async (req: Request, res: Response): Promise<void> => {
     const { name, description, eventDate, startTime, endTime, location, eventLink, eventType, category, protection, price, ticketStock, isConfirm} = req.body;
     const image = req.file?.buffer;
+    const sellerId = req.user?.Id;
 
     try {
-        const sellerId = req.user?.Id; // Get sellerId from token
         const seller = await Seller.findById(sellerId);
 
         if (!seller) {
@@ -111,18 +111,20 @@ const getEventDetail = async (req: Request, res: Response): Promise<void> => {
 
         // Respons dengan detail event
         res.status(200).json({
+            eventId: event._id,
             sellerId: event.sellerId,
             eventName,
             Image: event.image,
             description: event.description,
-            location: event.eventType === 'offline' ? event.location : undefined, // hanya akan muncul jika event offline atau concert
             eventDate: event.eventDate,
             eventTime,
-            protection: event.protection,
-            price: event.price,
+            location: event.eventType === 'offline' ? event.location : undefined, // hanya akan muncul jika event offline atau concert
+            eventLink: event.eventType === 'online' ? event.eventLink : undefined, // Hanya muncul jika event online
             eventType: event.eventType, // Menyertakan jenis event
             category: event.category, // Menyertakan kategori event
-            eventLink: event.eventType === 'online' ? event.eventLink : undefined, // Hanya muncul jika event online
+            protection: event.protection,
+            price: event.price,
+            ticketStock: event.ticketStock,
             isConfirm: event.isConfirm
         });
     } catch (error) {
@@ -133,14 +135,15 @@ const getEventDetail = async (req: Request, res: Response): Promise<void> => {
 // Get event counts based on isConfirm status
 const getEventCountsForSeller = async (req: Request, res: Response): Promise<void> => {
     const sellerId = req.user?.Id; // Get sellerId from token
-    const seller = await Seller.findById(sellerId);
-
-    if (!seller) {
-        res.status(404).json({ message: 'Seller not found' });
-        return;
-    }
 
     try {
+        const seller = await Seller.findById(sellerId);
+
+        if (!seller) {
+            res.status(404).json({ message: 'Seller not found' });
+            return;
+        }
+
         const awaitingCount = await Event.countDocuments({ sellerId, isConfirm: 'awaiting' });
         const acceptedCount = await Event.countDocuments({ sellerId, isConfirm: 'accepted' });
         const rejectedCount = await Event.countDocuments({ sellerId, isConfirm: 'rejected' });
@@ -158,14 +161,15 @@ const getEventCountsForSeller = async (req: Request, res: Response): Promise<voi
 // Get 5 upcoming events closest to current date
 const getUpcomingEventsForSeller = async (req: Request, res: Response): Promise<void> => {
     const sellerId = req.user?.Id; // Get sellerId from token
-    const seller = await Seller.findById(sellerId);
-
-    if (!seller) {
-        res.status(404).json({ message: 'Seller not found' });
-        return;
-    }
-
+    
     try {
+        const seller = await Seller.findById(sellerId);
+
+        if (!seller) {
+            res.status(404).json({ message: 'Seller not found' });
+            return;
+        }
+        
         const now = new Date();
 
         const upcomingEvents = await Event.find({ 
@@ -177,6 +181,27 @@ const getUpcomingEventsForSeller = async (req: Request, res: Response): Promise<
             .select('_id image name isConfirm');
 
         res.status(200).json(upcomingEvents);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch upcoming events', error });
+    }
+};
+
+const getAllEventsForSeller = async (req: Request, res: Response): Promise<void> => {
+    const sellerId = req.user?.Id; // Get sellerId from token
+
+    try {
+        const seller = await Seller.findById(sellerId);
+
+        if (!seller) {
+            res.status(404).json({ message: 'Seller not found' });
+            return;
+        }
+
+        const allEvents = await Event.find({ sellerId })
+            .sort({ eventDate: 1 })
+            .select('_id image name isConfirm');
+
+        res.status(200).json(allEvents);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch upcoming events', error });
     }
@@ -216,7 +241,7 @@ const confirmEvent = async (req: Request, res: Response): Promise<void> => {
 
 const editEvent = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params; // Get the event ID from URL params
-    const { name, description, eventDate, startTime, endTime, location, eventLink, eventType, category, protection, price, ticketStock, isConfirm } = req.body;
+    const { name, description, eventDate, startTime, endTime, location, eventLink, eventType, category, protection, price, ticketStock } = req.body;
     const image = req.file?.buffer; // Get the updated image from the request if provided
 
     try {
@@ -251,17 +276,17 @@ const editEvent = async (req: Request, res: Response): Promise<void> => {
 
 // Delete an event if isConfirm is awaiting and sellerId matches
 const deleteEvent = async (req: Request, res: Response): Promise<void> => {
-    const sellerId = req.user?.Id; // Get sellerId from token
-    const seller = await Seller.findById(sellerId);
-
-    if (!seller) {
-        res.status(404).json({ message: 'Seller not found' });
-        return;
-    }
-
     const { id } = req.params;
-
+    const sellerId = req.user?.Id; // Get sellerId from token
+    
     try {
+        const seller = await Seller.findById(sellerId);
+
+        if (!seller) {
+            res.status(404).json({ message: 'Seller not found' });
+            return;
+        }
+
         const event = await Event.findOne({ _id: id, sellerId, isConfirm: 'awaiting' });
 
         // Check if event exists
@@ -280,4 +305,20 @@ const deleteEvent = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
-export { addEvent, getUpcomingEvents, getEventsByCategory, searchEvent, getEventDetail, getUpcomingEventsForSeller, getEventCountsForSeller, confirmEvent, editEvent, deleteEvent };
+const getEventsByConfirmationStatus = async (req: Request, res: Response): Promise<void> => {
+    const { isConfirm } = req.params;
+    const confirmation = isConfirm || 'awaiting'; // Gunakan 'awaiting' sebagai nilai default jika isConfirm tidak ada
+
+    try {         
+        const events = await Event.find({ isConfirm: confirmation })
+            .sort({ eventDate: 1 })
+            .select('_id image name isConfirm'); // Mengambil id, image, dan name dari event
+
+        res.status(200).json(events);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch events', error });
+    }
+};
+
+
+export { addEvent, getUpcomingEvents, getEventsByCategory, searchEvent, getEventDetail, getUpcomingEventsForSeller, getEventCountsForSeller, getAllEventsForSeller, confirmEvent, editEvent, deleteEvent, getEventsByConfirmationStatus };

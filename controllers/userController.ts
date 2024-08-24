@@ -1,12 +1,75 @@
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User';
-import Seller from '../models/Seller';
+import Seller, { ISeller } from '../models/Seller';
 import Admin from '../models/Admin';
 import Token from '../models/Token';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken'
 import transporter from '../config/mailer';
 import { generateToken } from '../utils/tokenUtils';
+
+const addSeller = async (req: Request, res: Response): Promise<void> => {
+    const { email, name, phone, universitas } = req.body;
+
+    try {
+        let seller: ISeller | null = await Seller.findOne({ email });
+        if (seller) {
+            res.status(400).json({ message: 'Email is already in use' });
+            return;
+        }
+
+        // Check if email already exists in Seller collection
+        const user = await User.findOne({ email });
+        if (user) {
+            res.status(400).json({ message: 'Email is already registered as a user' });
+            return;
+        }
+
+        // Check if email already exists in Admin collection
+        const admin = await Admin.findOne({ email });
+        if (admin) {
+            res.status(400).json({ message: 'Email is already registered as an admin' });
+            return;
+        }
+
+        seller = await Seller.findOne({ name });
+        if (seller) {
+            res.status(400).json({ message: 'Name is already in use' });
+            return;
+        }
+
+        seller = await Seller.findOne({ phone });
+        if (seller) {
+            res.status(400).json({ message: 'Phone number is already in use' });
+            return;
+        }
+
+        seller = new Seller({
+            role: 'seller',
+            email,
+            name,
+            phone,
+            universitas
+        });
+
+        await seller.save();
+
+        res.status(201).json({ message: 'Seller added successfully', seller});
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            if (err.name === 'ValidationError') {
+                const messages = Object.values((err as any).errors).map((val: any) => val.message);
+                res.status(400).json({ message: messages });
+            } else {
+                console.error(err.message);
+                res.status(500).json({ message: 'Server error' });
+            }
+        } else {
+            console.error('An unknown error occurred');
+            res.status(500).json({ message: 'Server error' });
+        }
+    }
+};
 
 const registerUser = async (req: Request, res: Response): Promise<void> => {
     const { phone, email, username, password } = req.body;
@@ -135,7 +198,7 @@ const loginUser = async (req: Request, res: Response) => {
         }
 
         // Generate JWT token
-        const token = generateToken({ Id: user.id.toString(), role: 'user' });
+        const token = generateToken({ Id: user.id, role: 'user' });
 
         // Save the token in the database
         const newToken = new Token({
@@ -147,15 +210,19 @@ const loginUser = async (req: Request, res: Response) => {
 
         await newToken.save();
 
-        res.json({ message: 'Log in successfully', token });
+        res.json({ message: 'Log in successfully', token, Id: user._id, username: user.username, image: user.image });
     } catch (err) {
         res.status(500).json({ message: 'Internal server error', error: err });
     }
 };
 
 const getUserProfile = async (req: Request, res: Response) => {
+    const userId = req.user?.Id;
+
     try {
-        const user = await User.findById(req.user?.Id).select('_id phone email username');
+        const user = await User.findById(userId)
+        .select('_id email username image');
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -165,21 +232,21 @@ const getUserProfile = async (req: Request, res: Response) => {
     }
 };
 
-const updateUserProfile = async (req: Request, res: Response) => {
-    try {
-        const { phone, email, username } = req.body;
+const updateUserPhone = async (req: Request, res: Response) => {
+    const userId = req.user?.Id;
+    const { phone } = req.body;
 
-        const user = await User.findById(req.user?.Id);
+    try {
+        const user = await User.findById(userId);
+        
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         user.phone = phone || user.phone;
-        user.email = email || user.email;
-        user.username = username || user.username;
 
         await user.save();
-        res.json({ message: 'Profile updated successfully', user });
+        res.json({ message: 'User phone number updated successfully', user });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
@@ -187,9 +254,11 @@ const updateUserProfile = async (req: Request, res: Response) => {
 
 const changePassword = async (req: Request, res: Response): Promise<void> => {
     const { currentPassword, newPassword } = req.body;
+    const userId = req.user?.Id;
 
     try {
-        const user: IUser | null = await User.findById(req.user?.Id);
+        const user = await User.findById(userId);
+
         if (!user) {
             res.status(404).json({ message: 'User not found' });
             return;
@@ -229,4 +298,4 @@ const logoutUser = async (req: Request, res: Response) => {
     }
 };
 
-export { registerUser, verifyEmail, loginUser, getUserProfile, updateUserProfile, changePassword, logoutUser };
+export { addSeller, registerUser, verifyEmail, loginUser, getUserProfile, updateUserPhone, changePassword, logoutUser };

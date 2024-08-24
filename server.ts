@@ -1,9 +1,9 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import connectDB from './config/db';
 import bodyParser from 'body-parser';
-import session from 'express-session';
 import userRoutes from './routes/userRoutes';
 import eventRoutes from './routes/eventRoutes';
+import transactionRoutes from './routes/transactionRoutes';
 import helpMessageRoutes from './routes/helpMessageRoutes';
 import authRoutes from './routes/authRoutes'; // Import your auth routes
 import dotenv from 'dotenv';
@@ -23,22 +23,15 @@ app.use(bodyParser.json({ limit: '10mb' }));
 // Meningkatkan limit ukuran payload untuk form-urlencoded
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-// Session middleware
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret',
-    resave: false,
-    saveUninitialized: true,
-}));
-
 // Passport middleware
 app.use(passport.initialize());
-app.use(passport.session());
 
 // Routes
+app.use('/api', authRoutes); // Add the route for authentication
 app.use('/api/users', userRoutes);
 app.use('/api/event', eventRoutes);
+app.use('/api/transaction', transactionRoutes);
 app.use('/api/contact', helpMessageRoutes);
-app.use('/api', authRoutes); // Add the route for authentication
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
