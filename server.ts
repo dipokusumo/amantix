@@ -8,6 +8,7 @@ import helpMessageRoutes from './routes/helpMessageRoutes';
 import authRoutes from './routes/authRoutes'; // Import your auth routes
 import dotenv from 'dotenv';
 import passport from './config/passport'; // Import your passport configuration
+import cors from 'cors'; // Import cors
 
 dotenv.config();
 console.log('Server is starting...');
@@ -16,6 +17,16 @@ const app: Application = express();
 
 // Connect to database
 connectDB();
+
+// Configure CORS
+const corsOptions = {
+    origin: 'http://localhost:3000', // Allow requests from this origin (frontend)
+    methods: 'GET,PUT,PATCH,POST,DELETE',
+    credentials: true, // Allow cookies or other credentials to be sent
+    optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions)); // Use CORS middleware
 
 // Meningkatkan limit ukuran payload untuk JSON
 app.use(bodyParser.json({ limit: '10mb' }));

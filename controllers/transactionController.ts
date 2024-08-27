@@ -5,8 +5,16 @@ import User from '../models/User';
 import Event from '../models/Event';
 import Seller from '../models/Seller';
 import { generateTransactionCode } from '../utils/transactionCodeUtils';
+import midtransClient from 'midtrans-client'; // Import Midtrans SDK
 
-export const createTransaction = async (req: Request, res: Response): Promise<void> => {
+// Initialize Snap API
+const snap = new midtransClient.Snap({
+    isProduction: false, // Ubah ke true jika dalam production
+    serverKey: process.env.MIDTRANS_sERVER,
+    clientKey: process.env.MIDTRANS_CLIENT,
+});
+
+const createTransaction = async (req: Request, res: Response): Promise<void> => {
     const { eventId, sellerId, quantity, ticketsData } = req.body;
     const userId = req.user?.Id;
 
@@ -26,7 +34,7 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
         }
 
         if (event.isConfirm !== 'accepted') {
-            res.status(400).json({ message: 'harus nya lo gabisa liat tiket ini si' });
+            res.status(400).json({ message: 'You are not allowed to see this ticket' });
             return;
         }
 
@@ -39,7 +47,7 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
         for (let i = 0; i < quantity; i++) {
             const ticketData = ticketsData[i];
 
-            const transactionCode = generateTransactionCode(event.name, seller.name); // Menggunakan fungsi
+            const transactionCode = generateTransactionCode(event.name, seller.name);
 
             const ticket = new Ticket({
                 ...ticketData,
@@ -70,13 +78,46 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
 
         event.ticketStock -= quantity;
 
-        await transaction.save(); // Simpan transaksi
-        await event.save(); // Simpan perubahan stok tiket
+        await transaction.save();
+        await event.save();
 
-        await Ticket.insertMany(tickets); // Simpan semua tiket sekaligus
+        await Ticket.insertMany(tickets);
 
-        res.status(201).json({ message: 'Transaction created successfully', transaction });
+        const orderId = (transaction._id as unknown as string).toString();
+
+        // Create a payment transaction using Midtrans Snap API
+        const paymentPayload = {
+            transaction_details: {
+                order_id: orderId, // Use the transaction ID as the order_id
+                gross_amount: totalAmount,
+            },
+            credit_card: {
+                secure: true,
+            },
+            // customer_details: {
+            //     first_name: user.firstName,
+            //     last_name: user.lastName,
+            //     email: user.email,
+            //     phone: user.phoneNumber,
+            // },
+            item_details: tickets.map((ticket) => ({
+                id: `${ticket.transactionCode}`,
+                price: event.price,
+                quantity: 1,
+                name: `${eventName} Ticket`,
+            })),
+        };
+
+        const midtransTransaction = await snap.createTransaction(paymentPayload);
+
+        res.status(201).json({
+            message: 'Transaction created successfully',
+            transaction,
+            paymentUrl: midtransTransaction.redirect_url,
+        });
     } catch (error) {
         res.status(500).json({ message: 'Failed to create transaction', error });
     }
 };
+
+export { createTransaction };
