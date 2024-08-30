@@ -1,6 +1,7 @@
 'use client'
 import Navbar from '@/components/navbarUser';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const BuyTicketPage = () => {
   const [category, setCategory] = useState('Workshop');
@@ -13,7 +14,70 @@ const BuyTicketPage = () => {
     university: '',
     homeAddress: '',
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
+  const [image, setImage] = useState('');
+  const [role, setRole] = useState('');
+  const [token, setToken] = useState('');
+  const [Googleusername, setGoogleUsername] = useState('');
+  const [GoogleuserId, setGoogleUserId] = useState('');
+  const [Googleimage, setGoogleImage] = useState('');
+  const [Googlerole, setGoogleRole] = useState('');
+  const [Googletoken, setGoogleToken] = useState('');
+
+  // State for managing login errors
+  const [error, setError] = useState('');
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check if Google login data is present in URL query parameters
+    const Googletoken = searchParams.get('token') || '';  // Default to empty string if null
+    const GoogleuserId = searchParams.get('id') || '';    // Default to empty string if null
+    const Googleusername = searchParams.get('username') || '';  // Default to empty string if null
+    const Googleimage = searchParams.get('image') || '';  // Default to empty string if null
+    const Googlerole = searchParams.get('role') || '';    // Default to empty string if null
+  
+    if (Googletoken && GoogleuserId && Googleusername) {
+      // If Google login data is present, use it
+      setGoogleUserId(GoogleuserId);
+      setGoogleUsername(Googleusername);
+      setGoogleImage(Googleimage);
+      setGoogleRole(Googlerole);
+      setGoogleToken(Googletoken);
+  
+      // Save Google login data to sessionStorage
+      sessionStorage.setItem('userId', GoogleuserId);
+      sessionStorage.setItem('username', Googleusername);
+      sessionStorage.setItem('image', Googleimage);
+      sessionStorage.setItem('role', Googlerole);
+      sessionStorage.setItem('token', Googletoken);
+  
+      // Clean up the URL query parameters
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState(null, '', cleanUrl);
+    } else {
+      // If no Google login data, fall back to traditional login data from sessionStorage
+      const savedUsername = sessionStorage.getItem('username') || '';
+      const savedUserId = sessionStorage.getItem('userId') || '';
+      const savedImage = sessionStorage.getItem('image') || '';
+      const savedRole = sessionStorage.getItem('role') || '';
+      const savedToken = sessionStorage.getItem('token') || '';
+  
+      if (savedUsername) {
+        setUsername(savedUsername);
+        setUserId(savedUserId);
+        setImage(savedImage);
+        setRole(savedRole);
+        setToken(savedToken);
+      } else {
+        setError('No user data found in sessionStorage or query parameters. Please log in again.');
+        router.push('/login');
+      }
+    }
+  }, [searchParams, router]);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCategory(e.target.value);
@@ -49,7 +113,7 @@ const BuyTicketPage = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      <Navbar />
+      <Navbar userName={username} token={token} />
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="bg-white rounded-lg h-full w-full max-w-8xl mx-auto p-6">
           <div className="flex justify-between items-center mb-6">
