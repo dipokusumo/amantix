@@ -2,7 +2,7 @@
 
 ## How to clone branch using command line on Git Bash
 
-run command "git clone -b [branch-name] --single-branch https://github.com/Itseez/amantix.git"
+run command "git clone -b [branch-name] --single-branch https://github.com/dipokusumo/amantix.git"
 
 ## How to setup Server after cloning
 
