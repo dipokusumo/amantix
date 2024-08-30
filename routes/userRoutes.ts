@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { addSeller, registerUser, verifyEmail, loginUser, getUserProfile, updateUserPhone, changePassword, logoutUser } from '../controllers/userController';
+import { addSeller, registerUser, verifyEmail, loginUser, getUserProfile, changeImageProfile, updateUserPhone, changePassword, logoutUser } from '../controllers/userController';
 import { authenticateToken, authorizeRole } from '../middleware/authMiddleware';
+import uploadImage from '../config/upload';
 
 const router: Router = Router();
 
@@ -17,6 +18,8 @@ router.post('/login', loginUser);
 
 // Get user profile
 router.get('/getuserprofile', authenticateToken, authorizeRole('user'), getUserProfile);
+
+router.post('/changeimageprofile', authenticateToken, authorizeRole('user'), uploadImage.single('image'), changeImageProfile);
 
 // Update user profile
 router.put('/updateuserphone', authenticateToken, authorizeRole('user'), updateUserPhone);

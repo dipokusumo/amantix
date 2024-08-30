@@ -210,7 +210,7 @@ const loginUser = async (req: Request, res: Response) => {
 
         await newToken.save();
 
-        res.json({ message: 'Log in successfully', token, Id: user._id, username: user.username, image: user.image });
+        res.json({ message: 'Log in successfully', token, Id: user._id, username: user.username, image: user.image, role: user.role });
     } catch (err) {
         res.status(500).json({ message: 'Internal server error', error: err });
     }
@@ -221,12 +221,41 @@ const getUserProfile = async (req: Request, res: Response) => {
 
     try {
         const user = await User.findById(userId)
-        .select('_id email username image');
+        .select('_id email username phone image');
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+const changeImageProfile = async (req: Request, res: Response) => {
+    const userId = req.user?.Id;
+    const imageBuffer = req.file?.buffer;
+    
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (imageBuffer) {
+            // Convert the image buffer to a Base64 string
+            const base64Image = imageBuffer.toString('base64');
+
+            // Include the MIME type as a prefix if needed
+            const base64ImageWithMime = `data:${req.file?.mimetype};base64,${base64Image}`;
+
+            // Save the Base64 image string to the user's profile
+            user.image = base64ImageWithMime;
+        }
+
+        await user.save();
+        res.status(200).json({ message: 'Profile image updated successfully', image: user.image });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
@@ -298,4 +327,4 @@ const logoutUser = async (req: Request, res: Response) => {
     }
 };
 
-export { addSeller, registerUser, verifyEmail, loginUser, getUserProfile, updateUserPhone, changePassword, logoutUser };
+export { addSeller, registerUser, verifyEmail, loginUser, getUserProfile, changeImageProfile, updateUserPhone, changePassword, logoutUser };
