@@ -1,3 +1,5 @@
+'use client'
+
 import Head from 'next/head';
 import Navbar from '@/components/navbarUser';
 import HeroSlider from '@/components/HeroSlider';
@@ -5,14 +7,45 @@ import CategorySearch from '@/components/CategorySearch';
 import SellerSlider from '@/components/SellerSlider';
 import StatusEvent from '@/components/StatusEvent';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function DashboardSeller() {
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Extract user data from query parameters
+    const token = searchParams.get('token');
+    const _id = searchParams.get('id');
+    const name = searchParams.get('name');
+    const username = searchParams.get('username');
+    const image = searchParams.get('image');
+    const role = searchParams.get('role');
+
+    if (token && _id && username) {
+      const userData = { _id, name, username, image, role, token };
+      setUser(userData);
+
+      // Clean up the URL parameters
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState(null, '', cleanUrl);
+    } else {
+      console.error('User data missing in query parameters');
+      router.push('/login');
+    }
+  }, [router, searchParams]);
+
+  if (!user) {
+    return <p>Loading...</p>; // or a loading spinner
+  }
   return (
     <>
       <Head>
         <title>Dashboard</title>
       </Head>
-      <Navbar /> {/* Menambahkan Navbar */}
+      <Navbar userName={user.name} token={user.token} /> {/* Passing the username to the Navbar */}
       <main className="min-h-screen bg-gray-100">
         <HeroSlider />
                         {/* Status Event */}

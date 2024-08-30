@@ -6,7 +6,7 @@ const CategorySearch: React.FC = () => {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4">
       {/* Dropdown */}
-      <select className="form-select block w-full sm:w-1/6 md:w-1/2 py-2 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <select className="form-select block w-full sm:w-1/6 md:w-1/12 py-2 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="">Select</option>
         <option value="concert">Concert</option>
         <option value="workshop">Workshop</option>
@@ -18,7 +18,7 @@ const CategorySearch: React.FC = () => {
         <input
           type="text"
           placeholder="Search..."
-          className="block w-full py-2 px-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="block w-full py-2 px-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
     </div>

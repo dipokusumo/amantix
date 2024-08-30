@@ -29,7 +29,7 @@ const HeroSlider: React.FC = () => {
         </SwiperSlide>
         <SwiperSlide>
           <img
-            src="/svgs/Hero.png"
+            src="/svgs/Hero2.svg"
             alt="Hero Image 2"
             className="object-cover w-full h-full"
           />
