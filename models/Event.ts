@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 interface IEvent extends Document {
     sellerId: mongoose.Schema.Types.ObjectId;
     sellerName: string;
-    image: Buffer;
+    image: String | Buffer;
     name: string;
     description: string;
     eventDate: Date;
@@ -22,7 +22,7 @@ interface IEvent extends Document {
 const EventSchema: Schema = new Schema({
     sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller', required: true },
     sellerName: { type: String, required: true },
-    image: { type: Buffer, required: true },
+    image: { type: String, Buffer, required: true },
     name: { type: String, required: true },
     description: { type: String, required: true },
     eventDate: { type: Date, required: true },

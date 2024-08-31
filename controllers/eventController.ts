@@ -4,7 +4,7 @@ import Seller from '../models/Seller';
 
 const addEvent = async (req: Request, res: Response): Promise<void> => {
     const { name, description, eventDate, startTime, endTime, location, eventLink, eventType, category, protection, price, ticketStock, isConfirm} = req.body;
-    const image = req.file?.buffer;
+    const imageBuffer = req.file?.buffer;
     const sellerId = req.user?.Id;
 
     try {
@@ -14,11 +14,20 @@ const addEvent = async (req: Request, res: Response): Promise<void> => {
             res.status(404).json({ message: 'Seller not found' });
             return;
         }
+
+        let base64ImageWithMime: string | undefined;
+        if (imageBuffer) {
+            // Convert the image buffer to a Base64 string
+            const base64Image = imageBuffer.toString('base64');
+
+            // Include the MIME type as a prefix
+            base64ImageWithMime = `data:${req.file?.mimetype};base64,${base64Image}`;
+        }
         
         const newEvent = new Event({
             sellerId,
             sellerName: seller.name,
-            image,
+            image: base64ImageWithMime,
             name,
             description,
             eventDate,
@@ -242,30 +251,40 @@ const confirmEvent = async (req: Request, res: Response): Promise<void> => {
 const editEvent = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params; // Get the event ID from URL params
     const { name, description, eventDate, startTime, endTime, location, eventLink, eventType, category, protection, price, ticketStock } = req.body;
-    const image = req.file?.buffer; // Get the updated image from the request if provided
+    const imageBuffer = req.file?.buffer; // Get the updated image from the request if provided
 
     try {
-        // Find and update the event by ID
-        const event = await Event.findByIdAndUpdate( { _id: id }, {
-            name,
-            description,
-            eventDate,
-            startTime,
-            endTime,
-            location,
-            eventLink,
-            eventType,
-            category,
-            protection,
-            price,
-            ticketStock,
-            image: image || undefined // Only update image if provided
-        }, { new: true }); // `new: true` returns the updated document
+        // Find the event by ID
+        const event = await Event.findById(id);
 
         if (!event) {
             res.status(404).json({ message: 'Event not found' });
             return;
         }
+
+        // Update event details
+        event.name = name || event.name;
+        event.description = description || event.description;
+        event.eventDate = eventDate || event.eventDate;
+        event.startTime = startTime || event.startTime;
+        event.endTime = endTime || event.endTime;
+        event.location = location || event.location;
+        event.eventLink = eventLink || event.eventLink;
+        event.eventType = eventType || event.eventType;
+        event.category = category || event.category;
+        event.protection = protection || event.protection;
+        event.price = price || event.price;
+        event.ticketStock = ticketStock || event.ticketStock;
+
+        // If an updated image is provided, convert it to Base64 and update the event image
+        if (imageBuffer) {
+            const base64Image = imageBuffer.toString('base64');
+            const base64ImageWithMime = `data:${req.file?.mimetype};base64,${base64Image}`;
+            event.image = base64ImageWithMime;
+        }
+
+        // Save the updated event
+        await event.save();
 
         res.status(200).json({ message: 'Event updated successfully', event });
     } catch (error) {
