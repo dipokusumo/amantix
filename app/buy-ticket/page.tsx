@@ -58,6 +58,7 @@ const BuyTicketPage = () => {
     const eventname = sessionStorage.getItem('event-name');
     const eventprice = sessionStorage.getItem('event-price');
     const eventcategory = sessionStorage.getItem('event-category');
+
     if (ticketAmount && eventname && eventprice && eventcategory) {
       const newTicketLength = Array.from({ length: parseInt(ticketAmount) }, () => null);
       setTicketLength(newTicketLength as never[]);
@@ -132,7 +133,10 @@ const BuyTicketPage = () => {
         setToken(savedToken);
       } else {
         setError('No user data found in sessionStorage or query parameters. Please log in again.');
-        router.push('/login');
+      }
+      
+      if (savedRole == "seller" || savedRole == "admin") {
+        window.location.href = "http://localhost:3000/dashboard-seller";
       }
     }
   }, [searchParams, router, category, concertFormDataList, tournamentFormData, workshopFormDataList]);
