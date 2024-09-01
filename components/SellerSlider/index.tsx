@@ -5,19 +5,15 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay'; // Import CSS for Autoplay
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
-interface SlideData {
-  imageSrc: string;
-  description: string;
+interface SellerSliderProps {
+  eventList: any[]; // or whatever type eventList should be
 }
 
-const slides: SlideData[] = [
-  { imageSrc: '/svgs/img1.svg', description: 'Need Confirmation' },
-  { imageSrc: '/svgs/img2.svg', description: 'Accepted' },
-  { imageSrc: '/svgs/img3.svg', description: 'Rejected' },
-];
-
-const SellerSlider: React.FC = () => {
+const SellerSlider: React.FC<SellerSliderProps> = ({ eventList }) => {
   return (
     <div className="relative w-full bg-[#F8F7F3]">
       <Swiper
@@ -43,21 +39,25 @@ const SellerSlider: React.FC = () => {
         }}
         className="w-full h-[350px]" // Adjust height
       >
-        {slides.map((slide, index) => (
+        {eventList.map((item, index) => (
           <SwiperSlide key={index}>
             <div className="relative flex flex-col items-center w-full max-w-[208px]"> {/* Adjusted width */}
-              <img
-                src={slide.imageSrc}
-                alt={`Image ${index + 1}`}
-                className="object-cover w-full h-[293px]"
+            <Image
+              src="/svgs/img1.svg"
+              alt={`Image ${index + 1}`}
+              className="object-cover w-full h-[293px]"
+              width={100}
+              height={100}
               />
-              <p className={`flex text-lg font-semibold pt-4 ${slide.description === 'Accepted' ? 'text-green-500' : slide.description === 'Rejected' ? 'text-red-500' : 'text-gray-500'}`}>
-                <img 
-                  src={slide.description === 'Accepted' ? 'svgs/bullet1.svg' : slide.description === 'Rejected' ? 'svgs/bullet2.svg' : 'svgs/bullet.svg'} 
-                  alt="bullet" 
-                  className='mr-2' 
-                />
-                {slide.description}
+              <p className={`flex text-lg font-semibold pt-4 ${item.isConfirm === 'accepted' ? 'text-green-500' : item.isConfirm === 'rejected' ? 'text-red-500' : 'text-gray-500'}`}>
+              <Image
+                  src={item.isConfirm === 'accepted' ? '/svgs/bullet1.svg' : item.isConfirm === 'rejected' ? '/svgs/bullet2.svg' : '/svgs/bullet.svg'}
+                  alt="bullet"
+                  className='mr-2'
+                  width={10}
+                  height={10}
+              />
+                {item.isConfirm}
               </p>
             </div>
           </SwiperSlide>
