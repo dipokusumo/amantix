@@ -22,7 +22,7 @@ interface IEvent extends Document {
 const EventSchema: Schema = new Schema({
     sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller', required: true },
     sellerName: { type: String, required: true },
-    image: { type: String, Buffer, required: true },
+    image: { type: String, Buffer },
     name: { type: String, required: true },
     description: { type: String, required: true },
     eventDate: { type: Date, required: true },
