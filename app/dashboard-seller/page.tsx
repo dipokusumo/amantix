@@ -17,16 +17,22 @@ export default function DashboardSeller() {
 
   useEffect(() => {
     // Extract user data from query parameters
-    const token = searchParams.get('token');
-    const _id = searchParams.get('id');
-    const name = searchParams.get('name');
-    const username = searchParams.get('username');
-    const image = searchParams.get('image');
-    const role = searchParams.get('role');
+    const token = searchParams.get('token') || "";
+    const _id = searchParams.get('id') || "";
+    const name = searchParams.get('name') || "";
+    const username = searchParams.get('username') || "";
+    const image = searchParams.get('image') || "";
+    const role = searchParams.get('role') || "";
 
     if (token && _id && username) {
       const userData = { _id, name, username, image, role, token };
       setUser(userData);
+
+      sessionStorage.setItem('userId', _id);
+      sessionStorage.setItem('username', name);
+      sessionStorage.setItem('image', image);
+      sessionStorage.setItem('role', role);
+      sessionStorage.setItem('token', token);
 
       // Clean up the URL parameters
       const cleanUrl = window.location.origin + window.location.pathname;
