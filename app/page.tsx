@@ -1,3 +1,4 @@
+"use client"
 import Head from 'next/head';
 import Navbar from '@/components/navbar';
 import HeroSlider from '@/components/HeroSlider';
@@ -7,6 +8,7 @@ import Offer from '@/components/Offer';
 import Partners from '@/components/Partners';
 
 export default function Dashboard() {
+
   return (
     <>
       <Head>
