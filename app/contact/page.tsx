@@ -78,7 +78,7 @@ export default function Contact() {
             Halloo......
         </h2>
           <p className="text-gray-600">
-            Got a question? We're here to assist! Our friendly and knowledgeable Customer Relations team is a dedicated group of people who are passionate about AMANTIX and committed to ensuring you have the best experience. Contact us via WhatsApp, Telegram, and Email. Also, check out our FAQ page for quick answers to common questions.
+            Got a question? We&apos;re here to assist! Our friendly and knowledgeable Customer Relations team is a dedicated group of people who are passionate about AMANTIX and committed to ensuring you have the best experience. Contact us via WhatsApp, Telegram, and Email. Also, check out our FAQ page for quick answers to common questions.
           </p>
           <h2 className="text-gray-600 text-xl py-4 font-extrabold">
             Find me at
