@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import axios from 'axios';
 import classNames from 'classnames'; // To handle dynamic classes
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [emailOrUsername, setUsername] = useState('');
@@ -55,15 +56,15 @@ export default function LoginPage() {
       </Head>
       <div className="w-1/2 bg-white flex items-center justify-center">
         <div className="text-center">
-          <img src="/svgs/Logo.svg" alt="Logo" className="w-full h-full mx-auto mb-4" />
+          <Image src="/svgs/Logo.svg" width={24} height={24} alt="Logo" className="w-full h-full mx-auto mb-4" />
         </div>
       </div>
       <div className="w-1/2 bg-[#F8F7F3] flex flex-col items-center justify-center relative">
         <h2 className="absolute top-4 left-4 text-3xl font-bold text-blue-600">Login</h2>
         <div className="max-w-md w-full p-8">
-          <div className="absolute top-0 right-0">
-            <img src="/svgs/tixlog.svg" alt="Logo" className="w-full h-full" />
-          </div>
+        <div className="absolute top-0 right-0">
+          <Image src="/svgs/tixlog.svg" alt="Logo" layout="fill" />
+        </div>
           <div className='pb-4 text-center justify-center'>
             <h1 className='text-3xl text-blue-500 font-bold'>Welcome Back!</h1>
             <p className='text-lg'>Enter your email and password to access your account</p>
@@ -127,20 +128,20 @@ export default function LoginPage() {
               <p className="text-sm text-gray-600">or login with</p>
             </div>
             <div className="flex items-center justify-center mb-4">
-              <button
-                className="text-blue-500 flex justify-center border border-1 border-blue-500 font-bold py-3 px-3 rounded focus:outline-none focus:shadow-outline w-full"
-                type="button"
-                onClick={handleGoogleLogin}
-              >
-                <div className="">
-                  <img src="/svgs/google.svg" alt="Logo" className="w-full h-full pr-8 mx-auto" />
-                </div>
-                Sign in with Google
-              </button>
+            <button
+              className="text-blue-500 flex justify-center border border-1 border-blue-500 font-bold py-3 px-3 rounded focus:outline-none focus:shadow-outline w-full"
+              type="button"
+              onClick={handleGoogleLogin}
+            >
+              <div className="">
+                <Image src="/svgs/google.svg" alt="Logo" width={24} height={24} />
+              </div>
+              Sign in with Google
+            </button>
             </div>
             <div className="flex items-center justify-center">
               <p className="text-sm text-gray-600">
-                Don't have an account yet? <a href="/register" className="text-blue-500">Register now</a>
+                Don&apos;t have an account yet? <a href="/register" className="text-blue-500">Register now</a>
               </p>
             </div>
           </form>

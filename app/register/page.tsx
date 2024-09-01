@@ -46,7 +46,7 @@ export default function RegisterPage() {
 			<div className="w-1/2 bg-[#F8F7F3] flex flex-col items-center justify-center relative">
 				<h2 className="absolute top-4 left-4 text-[40px] font-bold text-blue-600">Register</h2>
 				<div className="text-center justify-center">
-					<h1 className="text-3xl text-blue-500 font-bold">Let's Create Your Account!</h1>
+					<h1 className="text-3xl text-blue-500 font-bold">Let&apos;s Create Your Account!</h1>
 					<p className="pt-4">Please enter your details to get started with AMANTIX</p>
 				</div>
 				<div className="max-w-md w-full p-8">

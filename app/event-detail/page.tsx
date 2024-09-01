@@ -4,25 +4,89 @@ import Image from "next/image";
 import Navbar from "@/components/navbarUser";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 
 export default function EventDetail() {
+	const [username, setUsername] = useState('');
+	const [userId, setUserId] = useState('');
+	const [image, setImage] = useState('');
+	const [role, setRole] = useState('');
+	const [token, setToken] = useState('');
 	const [quantity, setQuantity] = useState(1);
+	const [ticketLength, setTicketLength] = useState<number[]>([]);
 	const [inputValue, setInputValue] = useState("1");
-	const [username, setUsername] = useState("");
-	const [userId, setUserId] = useState("");
-	const [image, setImage] = useState("");
-	const [role, setRole] = useState("");
-	const [token, setToken] = useState("");
-	const [Googleusername, setGoogleUsername] = useState("");
-	const [GoogleuserId, setGoogleUserId] = useState("");
-	const [Googleimage, setGoogleImage] = useState("");
-	const [Googlerole, setGoogleRole] = useState("");
-	const [Googletoken, setGoogleToken] = useState("");
+	const [Googleusername, setGoogleUsername] = useState('');
+	const [GoogleuserId, setGoogleUserId] = useState('');
+	const [Googleimage, setGoogleImage] = useState('');
+	const [Googlerole, setGoogleRole] = useState('');
+	const [Googletoken, setGoogleToken] = useState('');
+	const [eventDetail, setEventDetail] = useState({
+		eventName: '',
+		time: '',
+		description: '',
+		eventTime: '',
+		eventDate: '',
+		eventType: 'Offline',
+		location: '',
+		link: '',
+		protection: false,
+		price: 1,
+		stock: '',
+		category: '',
+		sellerId: ''
+	  });
+	const [ticketQty, setTicketQty] = useState([]);
 
+	const formatRupiah = (number: number) => {
+		return number.toLocaleString('id-ID', {
+		style: 'currency',
+		currency: 'IDR',
+		minimumFractionDigits: 0, // Menghilangkan ,00
+    	maximumFractionDigits: 0, // Menghilangkan ,00
+		});
+	  };
+
+	  const formatDate = (timestamp: string | number | Date) => {
+		const options: Intl.DateTimeFormatOptions = {
+		  weekday: 'long',
+		  day: '2-digit',
+		  month: '2-digit',
+		  year: 'numeric',
+		};
+		return new Date(timestamp).toLocaleDateString('id-ID', options);
+	  };
+
+	  const protectionStatus = ["Proteksi Pengembalian Uang Jika Acara Terdapat Perubahan", "Tidak Terdapat Proteksi"];
+	  
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
 	useEffect(() => {
+
+		const eventId = sessionStorage.getItem("eventId") || "";
+
+		if (eventId == "") {
+			router.push("/dashboard-user");
+		} else {
+			axios
+      		.get(`http://localhost:5000/api/event/eventdetail/${eventId}`)
+      		.then((response) => {
+				setEventDetail(response.data);
+				console.log(response.data);
+      	})
+      		.catch((error) => {
+        	console.error(error);
+      	});
+		}
+		axios
+      .get(`http://localhost:5000/api/event/eventdetail/:`)
+      .then((response) => {
+        console.log(response.data)
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
 		// Check if Google login data is present in URL query parameters
 		const Googletoken = searchParams.get("token") || ""; // Default to empty string if null
 		const GoogleuserId = searchParams.get("id") || ""; // Default to empty string if null
@@ -111,7 +175,14 @@ export default function EventDetail() {
 			alert("Please login first");
 			router.push('/login');
 		} else {
-			console.log("Submitting form with quantity:", quantity);
+			const newTicketLength = Array.from({ length: quantity }, () => null);
+			setTicketLength(newTicketLength.map(() => 0)); // Initialize with zeros instead of null
+
+			sessionStorage.setItem('ticket-amount', quantity.toString());
+			sessionStorage.setItem('event-name', eventDetail.eventName);
+			sessionStorage.setItem('event-price', eventDetail.price.toString());
+			sessionStorage.setItem('event-category', eventDetail.category);
+			sessionStorage.setItem('event-sellerId', eventDetail.sellerId);
 			router.push('/buy-ticket');
 		}
   };
@@ -124,25 +195,23 @@ export default function EventDetail() {
 					<Image src="/svgs/img1.svg" alt="Event Image" width={402} height={558} className="w-2/3 h-full" />
 				</div>
 				<div className="md:w-1/2 pt-[50px]">
-					<h1 className="text-3xl font-bold mb-4">Music Festival by Universitas Paramadina</h1>
-					<p className="text-xl text-blue-600 mb-4 font-bold">Rp 130.000</p>
+					<h1 className="text-3xl font-bold mb-4">{eventDetail.eventName}</h1>
+					<p className="text-xl text-blue-600 mb-4 font-bold">{formatRupiah(eventDetail.price)}</p>
 					<p className="mb-4">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, <br /> sed do eiusmod tempor incididunt ut labore et dolore <br /> magna aliqua. Ut enim ad minim veniam, quis nostrud <br /> exercitation ullamco laboris nisi ut aliquip
-						ex ea <br /> commodo consequat. Duis aute irure dolor in reprehenderit in <br /> voluptate velit esse cillum dolore eu <br /> fugiat nulla pariatur. Excepteur sint occaecat cupidatat <br /> non proident, sunt in culpa qui
-						officia deserunt mollit <br /> anim id est laborum.
+						{eventDetail.description}
 					</p>
 					<ul className="mb-4">
 						<li className="mb-4">
-							<strong className="mr-[134px]">Location :</strong> Gedung C
+							<strong className="mr-[134px]">Location :</strong> {eventDetail.location}
 						</li>
 						<li className="mb-4">
-							<strong className="mr-[128px]">Schedule :</strong> 20 - 07 - 2024
+							<strong className="mr-[128px]">Schedule :</strong> {formatDate(eventDetail.eventDate)}
 						</li>
 						<li className="mb-4">
-							<strong className="mr-[163px]">Time :</strong> 15.00 - End
+							<strong className="mr-[163px]">Time :</strong> {eventDetail.eventTime}
 						</li>
 						<li className="mb-4">
-							<strong className="mr-[120px]">Protection :</strong> Proteksi Pengembalian Uang Jika Acara Terdapat Perubahan
+							<strong className="mr-[120px]">Protection :</strong> {eventDetail.protection ? protectionStatus[0] : protectionStatus[1]} 
 						</li>
 						<li className="mb-2">
 							<strong className="mr-[114px]">Guarantee :</strong> Receive your order or get your money back.

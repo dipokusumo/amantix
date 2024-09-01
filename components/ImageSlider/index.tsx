@@ -48,6 +48,11 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ role }) => {
       });
   }, []);
 
+  const handleSubmit = (id: string) => {
+    sessionStorage.setItem("eventId", id);
+    window.location.href = "/event-detail";
+  };
+
   return (
     <div className="relative w-full bg-[#F8F7F3]">
       <Swiper
@@ -75,7 +80,9 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ role }) => {
       >
         {slides.map((item, index) => (
           <SwiperSlide key={index}>
-            <Link href="/event-detail">
+            <button
+              onClick={() => handleSubmit(slides[index]._id)} // Mengambil ID dari slides
+            >
               <div className="relative flex flex-col items-center w-full max-w-[208px] cursor-pointer">
                 <img
                   src="/svgs/img1.svg"
@@ -84,7 +91,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ role }) => {
                 />
                 <p className="text-lg font-semibold pt-4">{item.name}</p>
               </div>
-            </Link>
+            </button>
           </SwiperSlide>
         ))}
       </Swiper>
