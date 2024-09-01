@@ -3,9 +3,6 @@ import Navbar from '@/components/navbarUser';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
-import Image from 'next/image';
-
-
 
 const formatRupiah = (number: number) => {
   return number.toLocaleString('id-ID', {
@@ -135,7 +132,7 @@ const BuyTicketPage = () => {
         router.push('/login');
       }
     }
-  }, [searchParams, router, category, concertFormDataList, tournamentFormData, workshopFormDataList]);
+  }, [searchParams, router]);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCategory(e.target.value);
@@ -246,7 +243,7 @@ const BuyTicketPage = () => {
                 <div className="bg-gray-100 p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
                   <h1 className="text-xl font-semibold mb-4">{eventName}</h1>
                   <div className='bg-gray-200 rounded-md px-2'>
-                    <Image src="/svgs/img4.svg" alt="Event" width={100} height={100} className="w-full min-w-7xl"/>
+                    <img src="/svgs/img4.svg" alt="Event" className="w-full min-w-7xl" />
                   </div>
                 </div>
               </div>

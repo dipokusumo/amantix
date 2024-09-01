@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+"use client"
+>>>>>>> da35e60261bd3886ff4797e13b4ca9fa8955d284
 import Head from 'next/head';
 import Navbar from '@/components/navbar';
 import HeroSlider from '@/components/HeroSlider';
@@ -7,6 +11,10 @@ import Offer from '@/components/Offer';
 import Partners from '@/components/Partners';
 
 export default function Dashboard() {
+<<<<<<< HEAD
+=======
+
+>>>>>>> da35e60261bd3886ff4797e13b4ca9fa8955d284
   return (
     <>
       <Head>
