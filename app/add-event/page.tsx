@@ -1,22 +1,30 @@
-'use client'
+'use client';
 import Navbar from '@/components/navbarUser';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import axios from 'axios';
+import Image from 'next/image';
 
 const AddEventPage = () => {
-  const [category, setCategory] = useState('Workshop');
-  const [formData, setFormData] = useState({
-    eventName: '',
-    time: '',
-    description: '',
-    schedule: '',
-    eventType: 'Offline',
-    location: '',
-    link: '',
-    protection: false,
-    price: '', // Tambahkan price
-    stock: '' // Tambahkan stock
-  });
+  // Category State
+  const [category, setCategory] = useState('workshop');
+
+  // General Information States
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [location, setLocation] = useState("");
+  const [eventLink, setEventLink] = useState("");
+  const [eventType, setEventType] = useState("offline");
+  const [protection, setProtection] = useState(false);
+
+  // Price and Stock States
+  const [price, setPrice] = useState("");
+  const [ticketStock, setTicketStock] = useState("");
+
+  // User Authentication States
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState('');
@@ -29,46 +37,40 @@ const AddEventPage = () => {
   const [Googlerole, setGoogleRole] = useState('');
   const [Googletoken, setGoogleToken] = useState('');
 
-  // State for managing login errors
   const [error, setError] = useState('');
 
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Check if Google login data is present in URL query parameters
-    const Googletoken = searchParams.get('token') || '';  // Default to empty string if null
-    const GoogleuserId = searchParams.get('id') || '';    // Default to empty string if null
-    const Googleusername = searchParams.get('username') || '';  // Default to empty string if null
-    const Googleimage = searchParams.get('image') || '';  // Default to empty string if null
-    const Googlerole = searchParams.get('role') || '';    // Default to empty string if null
-  
-    if (Googletoken && GoogleuserId && Googleusername) {
-      // If Google login data is present, use it
-      setGoogleUserId(GoogleuserId);
-      setGoogleUsername(Googleusername);
-      setGoogleImage(Googleimage);
-      setGoogleRole(Googlerole);
-      setGoogleToken(Googletoken);
-  
-      // Save Google login data to sessionStorage
-      sessionStorage.setItem('userId', GoogleuserId);
-      sessionStorage.setItem('username', Googleusername);
-      sessionStorage.setItem('image', Googleimage);
-      sessionStorage.setItem('role', Googlerole);
-      sessionStorage.setItem('token', Googletoken);
-  
-      // Clean up the URL query parameters
+    const GoogletokenParam = searchParams.get('token') || '';
+    const GoogleuserIdParam = searchParams.get('id') || '';
+    const GoogleusernameParam = searchParams.get('username') || '';
+    const GoogleimageParam = searchParams.get('image') || '';
+    const GoogleroleParam = searchParams.get('role') || '';
+
+    if (GoogletokenParam && GoogleuserIdParam && GoogleusernameParam) {
+      setGoogleUserId(GoogleuserIdParam);
+      setGoogleUsername(GoogleusernameParam);
+      setGoogleImage(GoogleimageParam);
+      setGoogleRole(GoogleroleParam);
+      setGoogleToken(GoogletokenParam);
+
+      sessionStorage.setItem('userId', GoogleuserIdParam);
+      sessionStorage.setItem('username', GoogleusernameParam);
+      sessionStorage.setItem('image', GoogleimageParam);
+      sessionStorage.setItem('role', GoogleroleParam);
+      sessionStorage.setItem('token', GoogletokenParam);
+
       const cleanUrl = window.location.origin + window.location.pathname;
       window.history.replaceState(null, '', cleanUrl);
     } else {
-      // If no Google login data, fall back to traditional login data from sessionStorage
       const savedUsername = sessionStorage.getItem('username') || '';
       const savedUserId = sessionStorage.getItem('userId') || '';
       const savedImage = sessionStorage.getItem('image') || '';
       const savedRole = sessionStorage.getItem('role') || '';
       const savedToken = sessionStorage.getItem('token') || '';
-  
+
       if (savedUsername) {
         setUsername(savedUsername);
         setUserId(savedUserId);
@@ -82,56 +84,117 @@ const AddEventPage = () => {
     }
   }, [searchParams, router]);
 
+  // Handle Category Change
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCategory(e.target.value);
-    setFormData({
-      eventName: '',
-      time: '',
-      description: '',
-      schedule: '',
-      eventType: 'Offline',
-      location: '',
-      link: '',
-      protection: false,
-      price: '', // Reset price saat kategori berubah
-      stock: '' // Reset stock saat kategori berubah
-    });
     setIsSubmitted(false);
   };
 
+  // Handle Input Changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
-    // Mengakses properti checked hanya jika elemen adalah checkbox
-    if (type === 'checkbox') {
-      setFormData({
-        ...formData,
-        [name]: (e.target as HTMLInputElement).checked,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+    const checked = 'checked' in e.target ? (e.target as HTMLInputElement).checked : undefined;
+
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+      case 'description':
+        setDescription(value);
+        break;
+      case 'eventDate':
+        setEventDate(value);
+        break;
+      case 'startTime':
+        setStartTime(value);
+        break;
+      case 'endTime':
+        setEndTime(value);
+        break;
+      case 'location':
+        setLocation(value);
+        break;
+      case 'eventLink':
+        setEventLink(value);
+        break;
+      case 'protection':
+        setProtection(checked ?? false);
+        break;
+      case 'price':
+        setPrice(value);
+        break;
+      case 'ticketStock':
+        setTicketStock(value);
+        break;
+      default:
+        break;
     }
   };
 
+  // Handle Event Type Change
   const handleEventTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      eventType: e.target.value,
-    });
+    setEventType(e.target.value);
   };
 
-  const handleSubmit = () => {
+  // Handle Form Submission
+  const handleSubmit = async () => {
     setIsSubmitted(true);
-    if (!formData.eventName || !formData.time || !formData.schedule || !formData.location) {
+
+    const savedToken = sessionStorage.getItem('token');
+
+    // Validate Required Fields
+    if (!name || !startTime || !endTime || !eventDate) {
       alert('Please fill in all required fields');
-    } else {
-      console.log(formData);
+      return;
+    }
+
+    // Compile Data Based on Category
+    const eventData = {
+      name,
+      description,
+      eventDate,
+      startTime,
+      endTime,
+      location: eventType === 'offline' ? location : '',
+      eventLink: eventType === 'online' ? eventLink : '',
+      eventType,
+      category,
+      protection,
+      price,
+      ticketStock
+    };
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/event/seller/addevent', 
+        {name,
+        description,
+        eventDate,
+        startTime,
+        endTime,
+        location,
+        eventLink,
+        eventType,
+        category,
+        protection,
+        price,
+        ticketStock}, {
+        headers: {
+          Authorization: `Bearer ${savedToken}`,
+        },
+      });
+
+      // Handle Success (e.g., redirect or show success message)
+      alert('Event added successfully. Redirecting you to dashboard...');
+      router.push('/dashboard-seller'); // Redirect to events page or another appropriate page
+    } catch (error: any) {
+      // Handle Error
+      console.error('Error adding event:', error);
+      alert(error.response?.data?.message || 'An error occurred while adding the event.');
     }
   };
 
+  // Render General Information Form
   const renderGeneralInformationForm = () => {
     return (
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
@@ -139,83 +202,99 @@ const AddEventPage = () => {
         <div className="flex flex-col gap-4">
           <input
             type="text"
-            name="eventName"
+            name="name"
             placeholder="Event Name"
-            value={formData.eventName}
+            value={name}
             onChange={handleInputChange}
-            className="border border-1 border-blue-500 rounded-md p-2"
+            className="border border-blue-500 rounded-md p-2"
           />
           <input
             type="text"
-            name="time"
-            placeholder="Time"
-            value={formData.time}
+            name="startTime"
+            placeholder="Start Time"
+            value={startTime}
             onChange={handleInputChange}
-            className="border border-1 border-blue-500 rounded-md p-2"
+            className="border border-blue-500 rounded-md p-2"
+          />
+          <input
+            type="text"
+            name="endTime"
+            placeholder="End Time"
+            value={endTime}
+            onChange={handleInputChange}
+            className="border border-blue-500 rounded-md p-2"
           />
           <textarea
             name="description"
             placeholder="Description"
-            value={formData.description}
+            value={description}
             onChange={handleInputChange}
-            className="border border-1 border-blue-500 rounded-md p-2"
+            className="border border-blue-500 rounded-md p-2"
           />
           <input
             type="date"
-            name="schedule"
+            name="eventDate"
             placeholder="Schedule"
-            value={formData.schedule}
+            value={eventDate}
             onChange={handleInputChange}
-            className="border border-1 border-blue-500 rounded-md p-2"
+            className="border border-blue-500 rounded-md p-2"
           />
 
           {category !== 'Concert' && (
             <div className="flex items-center gap-2">
               <label className="font-semibold">Event Type:</label>
-              <input
-                type="radio"
-                name="eventType"
-                value="Online"
-                checked={formData.eventType === 'Online'}
-                onChange={handleEventTypeChange}
-              /> Online
-              <input
-                type="radio"
-                name="eventType"
-                value="Offline"
-                checked={formData.eventType === 'Offline'}
-                onChange={handleEventTypeChange}
-              /> Offline
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="online"
+                  checked={eventType === 'online'}
+                  onChange={handleEventTypeChange}
+                  className="mr-1"
+                />
+                Online
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="offline"
+                  checked={eventType === 'offline'}
+                  onChange={handleEventTypeChange}
+                  className="mr-1"
+                />
+                Offline
+              </label>
             </div>
           )}
 
-          {formData.eventType === 'Online' && (
+          {eventType === 'online' ? (
             <input
               type="text"
-              name="link"
-              placeholder="Enter Online Event Link"
-              value={formData.link}
+              name="eventLink"
+              placeholder="Enter Online Link"
+              value={eventLink}
               onChange={handleInputChange}
-              className="border border-1 border-blue-500 rounded-md p-2"
+              className="border border-blue-500 rounded-md p-2"
+            />
+          ) : (
+            <input
+              type="text"
+              name="location"
+              placeholder="Location"
+              value={location}
+              onChange={handleInputChange}
+              className="border border-blue-500 rounded-md p-2"
             />
           )}
-
-          <input
-            type="text"
-            name="location"
-            placeholder="Location"
-            value={formData.location}
-            onChange={handleInputChange}
-            className="border border-1 border-blue-500 rounded-md p-2"
-          />
 
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
               name="protection"
-              checked={formData.protection}
+              checked={protection}
               onChange={handleInputChange}
-              className="border border-1 border-blue-500 rounded-md"
+              className="border border-blue-500 rounded-md"
             />
             <label className="font-semibold">Protection</label>
           </div>
@@ -226,7 +305,7 @@ const AddEventPage = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      {Googleusername && Googletoken ? (
+      {(Googleusername && Googletoken) ? (
         <Navbar userName={Googleusername} token={Googletoken} />
       ) : (
         <Navbar userName={username} token={token} />
@@ -248,12 +327,12 @@ const AddEventPage = () => {
                 <div className="bg-gray-100 p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
                   <h1 className="text-xl font-semibold mb-4">Display Picture</h1>
                   <div className='bg-gray-200 rounded-md px-2'>
-                    <img src="/svgs/img4.svg" alt="Event" className="w-full h-full" />
+                    <Image src="/svgs/img4.svg" alt="Event" width={100} height={100} className="w-full h-full" />
                   </div>
                   <button className="text-blue-500 mt-4">Upload Photo</button>
                 </div>
               </div>
-
+              
               <div className="flex-1">
                 {renderGeneralInformationForm()}
               </div>
@@ -269,31 +348,31 @@ const AddEventPage = () => {
                   onChange={handleCategoryChange}
                   className="border rounded-md p-2 w-full"
                 >
-                  <option value="Workshop">Workshop</option>
-                  <option value="Tournament">Tournament</option>
-                  <option value="Concert">Concert</option>
+                  <option value="workshop">Workshop</option>
+                  <option value="tournament">Tournament</option>
+                  <option value="concert">Concert</option>
                 </select>
               </div>
               <div className="bg-gray-100 p-4 rounded-lg shadow-md">
                 <label className="block text-black mb-2 font-bold text-xl">Price and Stock</label>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center border border-1 border-blue-500 rounded-md">
+                  <div className="flex items-center border border-blue-500 rounded-md">
                     <span className="px-2 bg-white">Rp</span>
                     <input
                       type="text"
                       name="price"
-                      value={formData.price}
+                      value={price}
                       onChange={handleInputChange}
                       className="flex-1 p-2 outline-none rounded-md"
                     />
                   </div>
                   <input
                     type="text"
-                    name="stock"
+                    name="ticketStock"
                     placeholder="Stock"
-                    value={formData.stock}
+                    value={ticketStock}
                     onChange={handleInputChange}
-                    className="border border-1 border-blue-500 rounded-md p-2"
+                    className="border border-blue-500 rounded-md p-2"
                   />
                 </div>
               </div>

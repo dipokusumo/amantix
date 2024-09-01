@@ -8,6 +8,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import Link from 'next/link';
 import axios from 'axios';
 import { ReactNode, useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface SlideData {
   name: ReactNode;
@@ -84,11 +85,13 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ role }) => {
               onClick={() => handleSubmit(slides[index]._id)} // Mengambil ID dari slides
             >
               <div className="relative flex flex-col items-center w-full max-w-[208px] cursor-pointer">
-                <img
-                  src="/svgs/img1.svg"
-                  alt={`Image ${index + 1}`}
-                  className="object-cover w-full h-[293px]"
-                />
+              <Image
+                src="/svgs/img1.svg"
+                alt={`Image ${index + 1}`}
+                className="object-cover w-full h-[293px]"
+                width={208}
+                height={293}
+/>
                 <p className="text-lg font-semibold pt-4">{item.name}</p>
               </div>
             </button>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import axios from "axios";
+import Image from 'next/image';
 
 export default function RegisterPage() {
 	const [username, setUsername] = useState("");
@@ -40,7 +41,7 @@ export default function RegisterPage() {
 			</Head>
 			<div className="w-1/2 bg-white flex items-center justify-center">
 				<div className="text-center">
-					<img src="/svgs/Logo.svg" alt="Logo" className="w-full h-full mx-auto mb-4" />
+					<Image src="/svgs/Logo.svg" alt="Logo" width={100} height={100} className="w-full h-full mx-auto mb-4" />
 				</div>
 			</div>
 			<div className="w-1/2 bg-[#F8F7F3] flex flex-col items-center justify-center relative">
@@ -50,9 +51,9 @@ export default function RegisterPage() {
 					<p className="pt-4">Please enter your details to get started with AMANTIX</p>
 				</div>
 				<div className="max-w-md w-full p-8">
-					<div className="absolute top-0 right-0">
-						<img src="/svgs/tixlog.svg" alt="Logo" className="w-full h-full" />
-					</div>
+				<div className="absolute top-0 right-0">
+					<Image src="/svgs/tixlog.svg" alt="Logo" layout="fill" />
+				</div>
 					<form onSubmit={(e) => e.preventDefault()}>
 						<div className="relative mb-6">
 							<input
@@ -115,7 +116,7 @@ export default function RegisterPage() {
 					</form>
 				</div>
 				<div className="flex justify-center">
-					<img src="/svgs/lock.svg" alt="Logo" className="w-[24px] h-[24px] mx-auto mb-4" />
+					<Image src="/svgs/lock.svg" alt="Logo" width={24} height={24} className="mx-auto mb-4" />
 					<p className="ml-4">
 						Your data will be protected and will not be used without your consent. <br />
 						By creating an account, you agree to our <span className="text-blue-500">Terms & Conditions</span> and <span className="text-blue-500">Privacy Policy.</span>
