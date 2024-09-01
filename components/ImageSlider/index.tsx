@@ -6,30 +6,48 @@ import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import Link from 'next/link';
+import axios from 'axios';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface SlideData {
+  name: ReactNode;
+  _id: string;
   imageSrc: string;
-  description: string;
+  eventName: string;
 }
 
 interface ImageSliderProps {
   role?: 'user' | 'seller' | 'admin'; // Tambahkan prop role
 }
 
-const slides: SlideData[] = [
-  { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
-  { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
-  { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
-  { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
-  { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
-  { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
-  { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
-  { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
-];
+// const slides: SlideData[] = [
+//   { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
+//   { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
+//   { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
+//   { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
+//   { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
+//   { imageSrc: '/svgs/img1.svg', description: 'Music Event' },
+//   { imageSrc: '/svgs/img2.svg', description: 'Music Party' },
+//   { imageSrc: '/svgs/img3.svg', description: 'Summer Party' },
+//   { imageSrc: '/svgs/img4.svg', description: 'Music Festival' },
+//   { imageSrc: '/svgs/img5.svg', description: 'Music Festival' },
+// ];
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ role }) => {
+  const [slides, setSlides] = useState<SlideData[]>([] as SlideData[]);
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/api/event/dashboard')
+      .then((response) => {
+        setSlides(response.data);
+        console.log(response.data)
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   return (
     <div className="relative w-full bg-[#F8F7F3]">
       <Swiper
@@ -55,16 +73,16 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ role }) => {
         }}
         className="w-full h-[350px]"
       >
-        {slides.map((slide, index) => (
+        {slides.map((item, index) => (
           <SwiperSlide key={index}>
             <Link href="/event-detail">
               <div className="relative flex flex-col items-center w-full max-w-[208px] cursor-pointer">
                 <img
-                  src={slide.imageSrc}
+                  src="/svgs/img1.svg"
                   alt={`Image ${index + 1}`}
                   className="object-cover w-full h-[293px]"
                 />
-                <p className="text-lg font-semibold pt-4">{slide.description}</p>
+                <p className="text-lg font-semibold pt-4">{item.name}</p>
               </div>
             </Link>
           </SwiperSlide>
